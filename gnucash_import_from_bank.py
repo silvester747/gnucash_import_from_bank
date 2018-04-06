@@ -3,7 +3,10 @@
 
 import csv
 import locale
+import os
 import sys
+
+from gnucash_import_converter.gnucash import GnuCashStatement, GnuCashCsvWriter
 
 assert len(sys.argv) == 2
 rabo_mut_file = open(sys.argv[1], "rb")
@@ -36,40 +39,14 @@ IN_FIELDS = (
         "Oorspr munt",
         "Koers"
         )
-OUT_FIELDS = (
-        "Date",
-#        "Num",
-        "Description",
-        "Notes",
-        "Account",
-        "Deposit",
-        "Withdrawal",
-        "Balance"
-        )
-
-account_files = []
-account_file_writers = {}
-
-def open_account_file_writer(account):
-    account_file_writer = account_file_writers.get(account, None)
-    if not account_file_writer is None:
-        return account_file_writer
-    
-    account_file = open(account + ".csv", "wb")
-    account_files.append(account_file)
-    account_file_writer = csv.writer(account_file)
-    account_file_writers[account] = account_file_writer
-    
-    account_file_writer.writerow(OUT_FIELDS)
-    
-    return account_file_writer
-    
 
 def read_number(source):
     source = source.replace(",", ".")
     return float(source)
 
 locale.setlocale(locale.LC_ALL, "")
+
+gnucash_writer = GnuCashCsvWriter(os.getcwd())
 
 try:
     rabo_reader = csv.reader(rabo_mut_file)
@@ -84,20 +61,20 @@ try:
             continue
         
         data = dict(zip(IN_FIELDS, line))
+        statement = GnuCashStatement()
         
-        account = data["IBAN/BBAN"]
-        writer = open_account_file_writer(account)
+        statement.account = data["IBAN/BBAN"]
         
-        deposit = 0
-        withdrawal = 0
+        statement.deposit = 0
+        statement.withdrawal = 0
         amount = read_number(data["Bedrag"])
         if amount > 0:
-            deposit = locale.currency(amount, "")
+            statement.deposit = locale.currency(amount, "")
         else:
-            withdrawal = locale.currency(-amount, "")
-        balance = locale.currency(read_number(data["Saldo na trn"]), "")
+            statement.withdrawal = locale.currency(-amount, "")
+        statement.balance = locale.currency(read_number(data["Saldo na trn"]), "")
         
-        date = data["Datum"]
+        statement.date = data["Datum"]
 
         payee = ""
         if data["Naam uiteindelijke partij"]:
@@ -106,20 +83,19 @@ try:
             payee = data["Naam tegenpartij"]
 
         if not payee and data["Tegenrekening IBAN/BBAN"]:
-            description = data["Tegenrekening IBAN/BBAN"]
+            statement.description = data["Tegenrekening IBAN/BBAN"]
         elif data["Tegenrekening IBAN/BBAN"]:
-            description = "{} ({})".format(payee, data["Tegenrekening IBAN/BBAN"])
+            statement.description = "{} ({})".format(payee, data["Tegenrekening IBAN/BBAN"])
         else:
-            description = payee
+            statement.description = payee
         
-        notes = ""
+        statement.notes = ""
         for field in ("Betalingskenmerk", "Omschrijving-1", "Omschrijving-2", "Omschrijving-3", "Reden retour"):
             if data[field]:
-                notes += data[field]
-        
-        writer.writerow((date, description, notes, account, deposit, withdrawal, balance))
-    
+                statement.notes += data[field]
+
+        gnucash_writer.write_statement(statement)
+
 finally:
-    for account_file in account_files:
-        account_file.close()
+    gnucash_writer.close()
     rabo_mut_file.close()
