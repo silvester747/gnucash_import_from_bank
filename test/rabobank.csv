@@ -1,0 +1,2 @@
+IBAN/BBAN,Munt,BIC,Volgnr,Datum,Rentedatum,Bedrag,Saldo na trn,Tegenrekening IBAN/BBAN,Naam tegenpartij,Naam uiteindelijke partij,Naam initiërende partij,BIC tegenpartij,Code,Batch ID,Transactiereferentie,Machtigingskenmerk,Incassant ID,Betalingskenmerk,Omschrijving-1,Omschrijving-2,Omschrijving-3,Reden retour,Oorspr bedrag,Oorspr munt,Koers
+NL12RABO1234567890,EUR,RABONL2U,4129,2018-02-28,2018-02-28,"-148,99","419,84",987654321,Computershop,,,,db,,,,,,Nice computer stuff, ,,,,,
