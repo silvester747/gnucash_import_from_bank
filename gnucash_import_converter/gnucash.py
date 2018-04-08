@@ -32,6 +32,7 @@ class GnuCashCsvWriter(object):
 
     def __init__(self, output_dir):
         self.output_dir = output_dir
+        os.makedirs(output_dir, exist_ok=True)
 
         self._open_files= []
         self._csv_writers = {}
