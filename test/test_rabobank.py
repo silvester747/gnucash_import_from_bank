@@ -1,26 +1,32 @@
-import os
-import subprocess
-import shutil
+# coding=utf-8
+import locale
+locale.setlocale(locale.LC_ALL, "")
 
-def test_full_import(tmpdir):
-    """
-    Temporary test for full script until refactoring is done.
-    """
-    input_csv = os.path.join(os.path.dirname(__file__), "rabobank.csv")
-    assert os.path.isfile(input_csv)
-    shutil.copy(input_csv, tmpdir)
+from gnucash_import_converter.rabobank import RabobankCsvReader
 
-    script = os.path.join(os.path.dirname(__file__), "..", "gnucash_import_from_bank.py")
-    assert os.path.isfile(script)
+header_row = """IBAN/BBAN,Munt,BIC,Volgnr,Datum,Rentedatum,Bedrag,Saldo na trn,Tegenrekening IBAN/BBAN,Naam tegenpartij,Naam uiteindelijke partij,Naam initiërende partij,BIC tegenpartij,Code,Batch ID,Transactiereferentie,Machtigingskenmerk,Incassant ID,Betalingskenmerk,Omschrijving-1,Omschrijving-2,Omschrijving-3,Reden retour,Oorspr bedrag,Oorspr munt,Koers"""
 
-    assert subprocess.call("{} {}".format(script, tmpdir.join("rabobank.csv")),
-                           cwd=str(tmpdir),
-                           shell=True) == 0
+def test_import_single_line(tmpdir):
+    input_transaction = """NL12RABO1234567890,EUR,RABONL2U,4129,2018-02-28,2018-02-29,"-148,99","419,84",987654321,Computershop,,,,db,,,,,,Nice computer stuff,,,,,,"""
 
-    out_csv = tmpdir.join("NL12RABO1234567890.csv")
-    assert out_csv.check()
+    input_file = tmpdir.join("input.csv")
+    input_file.write_text("\n".join((header_row, input_transaction, "")),
+                          encoding="latin-1",
+                          ensure=True)
 
-    expected_content = """Date,Description,Notes,Account,Deposit,Withdrawal,Balance
-2018-02-28,Computershop (987654321),Nice computer stuff ,NL12RABO1234567890,0,"148,99","419,84"
-"""
-    assert out_csv.read_text("latin1") == expected_content
+    reader = RabobankCsvReader(str(input_file))
+    try:
+        statements = list(reader)
+    finally:
+        reader.close()
+
+    assert len(statements) == 1
+    assert statements[0].date == "2018-02-28"
+    assert statements[0].num == "4129"
+    assert statements[0].description == "Computershop (987654321)"
+    assert statements[0].notes == "Nice computer stuff"
+    assert statements[0].account == "NL12RABO1234567890"
+    assert statements[0].deposit == 0
+    assert statements[0].withdrawal == "148,99"
+    assert statements[0].balance == "419,84"
+
