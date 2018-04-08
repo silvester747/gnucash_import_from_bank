@@ -112,3 +112,10 @@ class RabobankCsvReader(object):
 
     def __iter__(self):
         return RabobankCsvIterator(self._csv_reader)
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.close()
+        return False

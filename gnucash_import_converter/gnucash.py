@@ -65,3 +65,10 @@ class GnuCashCsvWriter(object):
         csv_writer.writerow(self.OUT_FIELDS)
 
         return csv_writer
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.close()
+        return False

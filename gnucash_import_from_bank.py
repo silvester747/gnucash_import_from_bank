@@ -12,13 +12,8 @@ assert len(sys.argv) == 2
 
 locale.setlocale(locale.LC_ALL, "")
 
-gnucash_writer = GnuCashCsvWriter(os.getcwd())
-rabo_reader = RabobankCsvReader(sys.argv[1])
+with GnuCashCsvWriter(os.getcwd()) as gnucash_writer:
+    with RabobankCsvReader(sys.argv[1]) as rabo_reader:
+        for statement in rabo_reader:
+            gnucash_writer.write_statement(statement)
 
-try:
-    for statement in rabo_reader:
-        gnucash_writer.write_statement(statement)
-
-finally:
-    gnucash_writer.close()
-    rabo_reader.close()
