@@ -22,7 +22,7 @@ def test_full_import(tmpdir):
     assert out_csv.check()
 
     expected_content = """Date,Description,Notes,Account,Deposit,Withdrawal,Balance
-2018-02-28,Computershop (987654321),Nice computer stuff ,NL12RABO1234567890,0,"148,99","419,84"
+2018-02-28,Computershop (987654321),Nice computer stuff ,NL12RABO1234567890,"0,00","148,99","419,84"
 """
     assert out_csv.read_text("latin1") == expected_content
 
@@ -47,7 +47,7 @@ def test_import_to_custom_output_directory(tmpdir):
     assert out_csv.check()
 
     expected_content = """Date,Description,Notes,Account,Deposit,Withdrawal,Balance
-2018-02-28,Computershop (987654321),Nice computer stuff ,NL12RABO1234567890,0,"148,99","419,84"
+2018-02-28,Computershop (987654321),Nice computer stuff ,NL12RABO1234567890,"0,00","148,99","419,84"
 """
     assert out_csv.read_text("latin1") == expected_content
 

@@ -22,11 +22,11 @@ def test_import_single_line(tmpdir):
 
     assert len(statements) == 1
     assert statements[0].date == "2018-02-28"
-    assert statements[0].num == "4129"
+    assert statements[0].num == 4129
     assert statements[0].description == "Computershop (987654321)"
     assert statements[0].notes == "Nice computer stuff"
     assert statements[0].account == "NL12RABO1234567890"
     assert statements[0].deposit == 0
-    assert statements[0].withdrawal == "148,99"
-    assert statements[0].balance == "419,84"
+    assert statements[0].withdrawal == 148.99
+    assert statements[0].balance == 419.84
 

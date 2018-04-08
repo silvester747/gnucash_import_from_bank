@@ -2,7 +2,6 @@
 
 import csv
 import io
-import locale
 
 from .gnucash import GnuCashStatement
 
@@ -52,16 +51,16 @@ class RabobankCsvIterator(object):
         statement = GnuCashStatement()
 
         statement.account = data["IBAN/BBAN"]
-        statement.num = data["Volgnr"]
+        statement.num = int(data["Volgnr"])
 
         statement.deposit = 0
         statement.withdrawal = 0
-        amount = self._read_number(data["Bedrag"])
+        amount = self._read_currency(data["Bedrag"])
         if amount > 0:
-            statement.deposit = locale.currency(amount, "")
+            statement.deposit = amount
         else:
-            statement.withdrawal = locale.currency(-amount, "")
-        statement.balance = locale.currency(self._read_number(data["Saldo na trn"]), "")
+            statement.withdrawal = -amount
+        statement.balance = self._read_currency(data["Saldo na trn"])
 
         statement.date = data["Datum"]
 
@@ -90,7 +89,7 @@ class RabobankCsvIterator(object):
            and line[0] != "IBAN/BBAN"
 
     @staticmethod
-    def _read_number(source):
+    def _read_currency(source):
         source = source.replace(",", ".")
         return float(source)
 

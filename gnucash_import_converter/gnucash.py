@@ -2,6 +2,7 @@
 # coding=utf-8
 
 import csv
+import locale
 import os
 
 
@@ -43,9 +44,10 @@ class GnuCashCsvWriter(object):
                 statement.description,
                 statement.notes,
                 statement.account,
-                statement.deposit,
-                statement.withdrawal,
-                statement.balance))
+                self._currency(statement.deposit),
+                self._currency(statement.withdrawal),
+                self._currency(statement.balance),
+                ))
 
     def close(self):
         for f in self._open_files:
@@ -73,3 +75,7 @@ class GnuCashCsvWriter(object):
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.close()
         return False
+
+    @staticmethod
+    def _currency(value):
+        return locale.currency(value, symbol=False)

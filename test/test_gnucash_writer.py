@@ -13,8 +13,8 @@ test_statements = (
             notes="Debit card payment",
             account=test_accounts[0],
             deposit=0,
-            withdrawal="12,23",
-            balance="105,34"
+            withdrawal=12.23,
+            balance=105.34
             ),
         GnuCashStatement(
             date="2018-02-25",
@@ -23,8 +23,8 @@ test_statements = (
             notes="Pills",
             account=test_accounts[0],
             deposit=0,
-            withdrawal="38,95",
-            balance="70,12"
+            withdrawal=38.95,
+            balance=70.12
             ),
         GnuCashStatement(
             date="2018-02-15",
@@ -33,14 +33,14 @@ test_statements = (
             notes="Other pills",
             account=test_accounts[1],
             deposit=0,
-            withdrawal="148,99",
-            balance="-30,20"
+            withdrawal=148.99,
+            balance=-30.20
             ),
         )
 expected_csv_rows = (
-        '2018-02-23,Supermarket,Debit card payment,NL12RABO76575776,0,"12,23","105,34"',
-        '2018-02-25,Pharmacy,Pills,NL12RABO76575776,0,"38,95","70,12"',
-        '2018-02-15,Candystore,Other pills,NL54RABO73838738,0,"148,99","-30,20"',
+        '2018-02-23,Supermarket,Debit card payment,NL12RABO76575776,"0,00","12,23","105,34"',
+        '2018-02-25,Pharmacy,Pills,NL12RABO76575776,"0,00","38,95","70,12"',
+        '2018-02-15,Candystore,Other pills,NL54RABO73838738,"0,00","148,99","30,20-"',
         )
 
 def test_one_statement_written_to_one_file(tmpdir):
