@@ -1,4 +1,7 @@
 # coding=utf-8
+"""
+Reading ABN Amro statements into intermediate format.
+"""
 
 import csv
 import io
@@ -7,7 +10,7 @@ import re
 from .gnucash import GnuCashStatement
 
 
-class AbnAmroTxtIterator(object):
+class _AbnAmroTxtIterator(object):
     FIXED_FIELDS = (
         "Account",
         "Currency",
@@ -66,14 +69,14 @@ class AbnAmroTxtIterator(object):
     @staticmethod
     def _split_extra_fields(extra_field_str):
         parts = re.split(r'\s\s+', extra_field_str)
-        assert(len(parts) > 0)
+        assert parts
 
         extra_data = {}
         extra_data['Type'] = parts[0]
 
         for item in parts[1:]:
             if ':' in item:
-                key, value = re.split(':\s?', item, maxsplit=1)
+                key, value = re.split(r':\s?', item, maxsplit=1)
 
                 if key in extra_data:
                     # Key might be detected as part of value
@@ -113,13 +116,16 @@ class AbnAmroTxtReader(object):
         self._csv_reader = csv.reader(self._csv_file, dialect='excel-tab')
 
     def close(self):
+        """
+        Close the input file.
+        """
         self._csv_reader = None
         if self._csv_file is not None:
             self._csv_file.close()
             self._csv_file = None
 
     def __iter__(self):
-        return AbnAmroTxtIterator(self._csv_reader)
+        return _AbnAmroTxtIterator(self._csv_reader)
 
     def __enter__(self):
         return self

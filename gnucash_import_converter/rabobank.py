@@ -1,4 +1,7 @@
 # coding=utf-8
+"""
+Reading Rabobank statements into intermediate format.
+"""
 
 import csv
 import io
@@ -6,7 +9,7 @@ import io
 from .gnucash import GnuCashStatement
 
 
-class RabobankCsvIterator(object):
+class _RabobankCsvIterator(object):
     IN_FIELDS = (
         "IBAN/BBAN",
         "Munt",
@@ -80,7 +83,8 @@ class RabobankCsvIterator(object):
             statement.description = payee
 
         statement.notes = ""
-        for field in ("Betalingskenmerk", "Omschrijving-1", "Omschrijving-2", "Omschrijving-3", "Reden retour"):
+        for field in ("Betalingskenmerk", "Omschrijving-1", "Omschrijving-2", "Omschrijving-3",
+                      "Reden retour"):
             if data[field]:
                 statement.notes += data[field]
 
@@ -108,13 +112,16 @@ class RabobankCsvReader(object):
         self._csv_reader = csv.reader(self._csv_file)
 
     def close(self):
+        """
+        Close the input file.
+        """
         self._csv_reader = None
         if self._csv_file is not None:
-            self._csv_file.close
+            self._csv_file.close()
             self._csv_file = None
 
     def __iter__(self):
-        return RabobankCsvIterator(self._csv_reader)
+        return _RabobankCsvIterator(self._csv_reader)
 
     def __enter__(self):
         return self
