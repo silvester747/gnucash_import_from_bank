@@ -6,17 +6,18 @@ import re
 
 from .gnucash import GnuCashStatement
 
+
 class AbnAmroTxtIterator(object):
     FIXED_FIELDS = (
-            "Account",
-            "Currency",
-            "Date",
-            "Balance before",
-            "Balance after",
-            "Interest date",
-            "Amount",
-            "Extra fields",
-            )
+        "Account",
+        "Currency",
+        "Date",
+        "Balance before",
+        "Balance after",
+        "Interest date",
+        "Amount",
+        "Extra fields",
+    )
 
     def __init__(self, csv_reader):
         self._csv_reader = csv_reader
@@ -36,7 +37,8 @@ class AbnAmroTxtIterator(object):
 
         flat_date = fixed_data['Date']
         assert len(flat_date) == 8
-        statement.date = '{}-{}-{}'.format(flat_date[0:4], flat_date[4:6], flat_date[6:8])
+        statement.date = '{}-{}-{}'.format(
+            flat_date[0:4], flat_date[4:6], flat_date[6:8])
 
         statement.balance = self._read_currency(fixed_data['Balance after'])
         statement.deposit = 0
@@ -103,9 +105,11 @@ class AbnAmroTxtReader(object):
     """
     Reads TXT format available from ABN AMRO Internet Bankieren.
     """
+
     def __init__(self, file_name):
         self.file_name = file_name
-        self._csv_file = io.open(file_name, mode="r", encoding="utf-8", newline="")
+        self._csv_file = io.open(
+            file_name, mode="r", encoding="utf-8", newline="")
         self._csv_reader = csv.reader(self._csv_file, dialect='excel-tab')
 
     def close(self):

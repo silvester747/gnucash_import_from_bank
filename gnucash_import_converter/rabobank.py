@@ -5,35 +5,36 @@ import io
 
 from .gnucash import GnuCashStatement
 
+
 class RabobankCsvIterator(object):
     IN_FIELDS = (
-            "IBAN/BBAN",
-            "Munt",
-            "BIC",
-            "Volgnr",
-            "Datum",
-            "Rentedatum",
-            "Bedrag",
-            "Saldo na trn",
-            "Tegenrekening IBAN/BBAN",
-            "Naam tegenpartij",
-            "Naam uiteindelijke partij",
-            "Naam initiërende partij",
-            "BIC tegenpartij",
-            "Code",
-            "Batch ID",
-            "Transactiereferentie",
-            "Machtigingskenmerk",
-            "Incassant ID",
-            "Betalingskenmerk",
-            "Omschrijving-1",
-            "Omschrijving-2",
-            "Omschrijving-3",
-            "Reden retour",
-            "Oorspr bedrag",
-            "Oorspr munt",
-            "Koers"
-            )
+        "IBAN/BBAN",
+        "Munt",
+        "BIC",
+        "Volgnr",
+        "Datum",
+        "Rentedatum",
+        "Bedrag",
+        "Saldo na trn",
+        "Tegenrekening IBAN/BBAN",
+        "Naam tegenpartij",
+        "Naam uiteindelijke partij",
+        "Naam initiërende partij",
+        "BIC tegenpartij",
+        "Code",
+        "Batch ID",
+        "Transactiereferentie",
+        "Machtigingskenmerk",
+        "Incassant ID",
+        "Betalingskenmerk",
+        "Omschrijving-1",
+        "Omschrijving-2",
+        "Omschrijving-3",
+        "Reden retour",
+        "Oorspr bedrag",
+        "Oorspr munt",
+        "Koers"
+    )
 
     def __init__(self, csv_reader):
         self._csv_reader = csv_reader
@@ -73,7 +74,8 @@ class RabobankCsvIterator(object):
         if not payee and data["Tegenrekening IBAN/BBAN"]:
             statement.description = data["Tegenrekening IBAN/BBAN"]
         elif data["Tegenrekening IBAN/BBAN"]:
-            statement.description = "{} ({})".format(payee, data["Tegenrekening IBAN/BBAN"])
+            statement.description = "{} ({})".format(
+                payee, data["Tegenrekening IBAN/BBAN"])
         else:
             statement.description = payee
 
@@ -86,7 +88,7 @@ class RabobankCsvIterator(object):
 
     def _is_valid_line(self, line):
         return len(line) == len(self.IN_FIELDS) \
-           and line[0] != "IBAN/BBAN"
+            and line[0] != "IBAN/BBAN"
 
     @staticmethod
     def _read_currency(source):
@@ -98,9 +100,11 @@ class RabobankCsvReader(object):
     """
     Reads new CSV format available from Rabobank Internet Bankieren.
     """
+
     def __init__(self, file_name):
         self.file_name = file_name
-        self._csv_file = io.open(file_name, mode="r", encoding="latin-1", newline="")
+        self._csv_file = io.open(
+            file_name, mode="r", encoding="latin-1", newline="")
         self._csv_reader = csv.reader(self._csv_file)
 
     def close(self):
