@@ -7,6 +7,12 @@ import os
 
 from gnucash_import_converter.gnucash import GnuCashCsvWriter
 from gnucash_import_converter.rabobank import RabobankCsvReader
+from gnucash_import_converter.abnamro import AbnAmroTxtReader
+
+supported_readers = {
+        'rabobank': RabobankCsvReader,
+        'abnamro': AbnAmroTxtReader,
+        }
 
 parser = argparse.ArgumentParser(
         description="Convert bank statements into format to import into GNUCash."
@@ -17,6 +23,14 @@ parser.add_argument(
         action='store',
         type=str,
         help='Transaction file to import.'
+        )
+parser.add_argument(
+        '-t', '--type',
+        action='store',
+        type=str,
+        choices=supported_readers,
+        required=True,
+        help='Type of transaction file to import.',
         )
 parser.add_argument(
         '-o', '--output_dir',
@@ -31,7 +45,7 @@ args = parser.parse_args()
 locale.setlocale(locale.LC_ALL, "")
 
 with GnuCashCsvWriter(args.output_dir) as gnucash_writer:
-    with RabobankCsvReader(args.input_file) as rabo_reader:
+    with supported_readers[args.type](args.input_file) as rabo_reader:
         for statement in rabo_reader:
             gnucash_writer.write_statement(statement)
 

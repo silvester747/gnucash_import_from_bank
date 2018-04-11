@@ -14,7 +14,7 @@ def test_full_import(tmpdir):
     script = os.path.join(os.path.dirname(__file__), "..", "gnucash_import_from_bank.py")
     assert os.path.isfile(script)
 
-    assert subprocess.call("{} {}".format(script, tmpdir.join("rabobank.csv")),
+    assert subprocess.call("{} {} --type rabobank".format(script, tmpdir.join("rabobank.csv")),
                            cwd=str(tmpdir),
                            shell=True) == 0
 
@@ -37,9 +37,8 @@ def test_import_to_custom_output_directory(tmpdir):
 
     output_dir = tmpdir.join('my_custom_output_dir')
 
-    assert subprocess.call("{} {} --output_dir {}".format(script,
-                                                          tmpdir.join("rabobank.csv"),
-                                                          output_dir),
+    assert subprocess.call("{} {} --output_dir {} --type rabobank".format(
+                               script, tmpdir.join("rabobank.csv"), output_dir),
                            cwd=str(tmpdir),
                            shell=True) == 0
 
