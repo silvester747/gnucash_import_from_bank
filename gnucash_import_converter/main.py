@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 # coding=utf-8
 """
 Main application for converting bank statements.
@@ -7,12 +6,13 @@ Main application for converting bank statements.
 import argparse
 import locale
 import os
+import sys
 
 from gnucash_import_converter.gnucash import GnuCashCsvWriter
 from gnucash_import_converter.rabobank import RabobankCsvReader
 from gnucash_import_converter.abnamro import AbnAmroTxtReader
 
-def main():
+def main(argv=None):
     """
     Main application for converting bank statements.
     """
@@ -48,7 +48,7 @@ def main():
         help='Directory to store files to import into GNUCash. Defaults to the current working ' + \
              'directory.'
     )
-    args = parser.parse_args()
+    args = parser.parse_args(argv)
 
     locale.setlocale(locale.LC_ALL, "")
 
@@ -56,5 +56,3 @@ def main():
         with supported_readers[args.type](args.input_file) as rabo_reader:
             for statement in rabo_reader:
                 gnucash_writer.write_statement(statement)
-
-main()

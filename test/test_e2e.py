@@ -1,7 +1,7 @@
 import os
-import subprocess
 import shutil
 
+from gnucash_import_converter.main import main
 
 def test_full_import(tmpdir):
     """
@@ -11,12 +11,12 @@ def test_full_import(tmpdir):
     assert os.path.isfile(input_csv)
     shutil.copy(input_csv, tmpdir)
 
-    script = os.path.join(os.path.dirname(__file__), "..", "gnucash_import_from_bank.py")
-    assert os.path.isfile(script)
-
-    assert subprocess.call("{} {} --type rabobank".format(script, tmpdir.join("rabobank.csv")),
-                           cwd=str(tmpdir),
-                           shell=True) == 0
+    argv = [
+        "--type", "rabobank",
+        str(tmpdir.join("rabobank.csv")),
+    ]
+    with tmpdir.as_cwd():
+        main(argv)
 
     out_csv = tmpdir.join("NL12RABO1234567890.csv")
     assert out_csv.check()
@@ -32,15 +32,15 @@ def test_import_to_custom_output_directory(tmpdir):
     assert os.path.isfile(input_csv)
     shutil.copy(input_csv, tmpdir)
 
-    script = os.path.join(os.path.dirname(__file__), "..", "gnucash_import_from_bank.py")
-    assert os.path.isfile(script)
-
     output_dir = tmpdir.join('my_custom_output_dir')
 
-    assert subprocess.call("{} {} --output_dir {} --type rabobank".format(
-                               script, tmpdir.join("rabobank.csv"), output_dir),
-                           cwd=str(tmpdir),
-                           shell=True) == 0
+    argv = [
+        "--output_dir", str(output_dir),
+        "--type", "rabobank",
+        str(tmpdir.join("rabobank.csv")),
+    ]
+    with tmpdir.as_cwd():
+        main(argv)
 
     out_csv = output_dir.join("NL12RABO1234567890.csv")
     assert out_csv.check()

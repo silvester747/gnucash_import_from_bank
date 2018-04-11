@@ -39,7 +39,9 @@ setup(
     extras_require={
         'test': ['py.test'],
     },
-    scripts=[  # Use entry_points instead
-        'gnucash_import_from_bank.py',
-    ],
+    entry_points={
+        'console_scripts': [
+            'gnucash_import_from_bank = gnucash_import_converter.main:main',
+        ],
+    },
 )
