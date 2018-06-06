@@ -55,7 +55,8 @@ class _RabobankCsvIterator(object):
         statement = GnuCashStatement()
 
         statement.account = data["IBAN/BBAN"]
-        statement.num = int(data["Volgnr"])
+        if data["Volgnr"]:
+            statement.num = int(data["Volgnr"])
 
         statement.deposit = 0
         statement.withdrawal = 0
