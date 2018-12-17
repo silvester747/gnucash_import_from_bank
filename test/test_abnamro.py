@@ -78,3 +78,52 @@ def test_bea_withdrawal(tmpdir):
     assert statements[0].deposit == 0
     assert statements[0].withdrawal == 30.56
     assert statements[0].balance == 998.13
+
+
+def test_bea_withdrawal2(tmpdir):
+    input_transaction = """512345543	EUR	20180626	4459,24	4408,24	20180626	-51,00	BEA   NR:CT535434 26.06.18/12.08 CCV*Olaf Van Verde OEGST,PAS232 """
+
+    input_file = tmpdir.join("input.csv")
+    input_file.write_text("\n".join((input_transaction, "")),
+                          encoding="utf-8",
+                          ensure=True)
+
+    reader = AbnAmroTxtReader(str(input_file))
+    try:
+        statements = list(reader)
+    finally:
+        reader.close()
+
+    assert len(statements) == 1
+    assert statements[0].date == "2018-06-26"
+    assert statements[0].num is None
+    assert statements[0].description == "CCV*Olaf Van Verde OEGST"
+    assert statements[0].notes == None
+    assert statements[0].account == "512345543"
+    assert statements[0].deposit == 0
+    assert statements[0].withdrawal == 51.00
+    assert statements[0].balance == 4408.24
+
+def test_sepa_deposit_slash(tmpdir):
+    input_transaction = """512345543	EUR	20181025	897,61	2420,36	20181025	1522,75	/TRTP/SEPA OVERBOEKING/IBAN/NL44INGB7394748399/BIC/INGBNL2A/NAME/My Fantastic Job BV/REMI/Salaris Oktober 2018/EREF/20183234234324-234326/3                                           """
+
+    input_file = tmpdir.join("input.csv")
+    input_file.write_text("\n".join((input_transaction, "")),
+                          encoding="utf-8",
+                          ensure=True)
+
+    reader = AbnAmroTxtReader(str(input_file))
+    try:
+        statements = list(reader)
+    finally:
+        reader.close()
+
+    assert len(statements) == 1
+    assert statements[0].date == "2018-10-25"
+    assert statements[0].num is None
+    assert statements[0].description == "My Fantastic Job BV (NL44INGB7394748399)"
+    assert statements[0].notes == "Salaris Oktober 2018"
+    assert statements[0].account == "512345543"
+    assert statements[0].deposit == 1522.75
+    assert statements[0].withdrawal == 0
+    assert statements[0].balance == 2420.36

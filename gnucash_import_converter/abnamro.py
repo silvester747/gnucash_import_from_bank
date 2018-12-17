@@ -68,12 +68,25 @@ class _AbnAmroTxtIterator(object):
 
     @staticmethod
     def _split_extra_fields(extra_field_str):
-        parts = re.split(r'\s\s+', extra_field_str)
-        assert parts
+        if extra_field_str.startswith('/TRTP/'):
+            return _AbnAmroTxtIterator._split_extra_fields_trtp(extra_field_str)
+        else:
+            parts = re.split(r'\s\s+', extra_field_str)
+            assert parts
+            print(parts)
 
-        extra_data = {}
-        extra_data['Type'] = parts[0]
+            extra_data = {}
+            extra_data['Type'] = transaction_type = parts[0]
 
+            if transaction_type == 'BEA':
+                _AbnAmroTxtIterator._split_extra_fields_bea(parts, extra_data)
+            else:
+                _AbnAmroTxtIterator._split_extra_fields_generic(parts, extra_data)
+
+            return extra_data
+
+    @staticmethod
+    def _split_extra_fields_generic(parts, extra_data):
         for item in parts[1:]:
             if ':' in item:
                 key, value = re.split(r':\s?', item, maxsplit=1)
@@ -89,6 +102,33 @@ class _AbnAmroTxtIterator(object):
                 else:
                     extra_data['Rest'] = item
 
+    @staticmethod
+    def _split_extra_fields_bea(parts, extra_data):
+        combined = ' '.join(parts[1:])
+        match = re.search(r"\d\d\.\d\d\.\d\d/\d\d\.\d\d (.*),PAS\d+", combined)
+        if match:
+            extra_data['Naam'] = match.group(1)
+        else:
+            extra_data['Rest'] = combined
+
+    @staticmethod
+    def _split_extra_fields_trtp(extra_field_str):
+        extra_data = {}
+
+        parts = extra_field_str.split('/')
+        assert len(parts) > 2
+        assert parts[1] == 'TRTP'
+        parts = parts[1:]
+        while len(parts) >= 2:
+            extra_data[parts[0]] = parts[1]
+            parts = parts[2:]
+        if len(parts) == 1:
+            extra_data['Rest'] = parts[0]
+
+        if 'NAME' in extra_data:
+            extra_data['Naam'] = extra_data['NAME']
+        if 'REMI' in extra_data:
+            extra_data['Omschrijving'] = extra_data['REMI']
         return extra_data
 
     @staticmethod
