@@ -48,11 +48,17 @@ def main(argv=None):
         help='Directory to store files to import into GNUCash. Defaults to the current working ' + \
              'directory.'
     )
+    parser.add_argument(
+        '-m', '--split-months',
+        action='store_true',
+        help='Create separate files for each month.'
+    )
+
     args = parser.parse_args(argv)
 
     locale.setlocale(locale.LC_ALL, "")
 
-    with GnuCashCsvWriter(args.output_dir) as gnucash_writer:
+    with GnuCashCsvWriter(args.output_dir, args.split_months) as gnucash_writer:
         with supported_readers[args.type](args.input_file) as rabo_reader:
             for statement in rabo_reader:
                 gnucash_writer.write_statement(statement)

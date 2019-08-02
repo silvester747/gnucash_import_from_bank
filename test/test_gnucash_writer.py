@@ -36,11 +36,22 @@ test_statements = (
             withdrawal=148.99,
             balance=-30.20
             ),
+        GnuCashStatement(
+            date="2018-04-11",
+            num=14,
+            description="Internet provider",
+            notes="Fiber bill",
+            account=test_accounts[0],
+            deposit=0,
+            withdrawal=52.12,
+            balance=130.20
+            ),
         )
 expected_csv_rows = (
         '2018-02-23,Supermarket,Debit card payment,NL12RABO76575776,"0,00","12,23","105,34"',
         '2018-02-25,Pharmacy,Pills,NL12RABO76575776,"0,00","38,95","70,12"',
         '2018-02-15,Candystore,Other pills,NL54RABO73838738,"0,00","148,99","30,20-"',
+        '2018-04-11,Internet provider,Fiber bill,NL12RABO76575776,"0,00","52,12","130,20"',
         )
 
 def test_one_statement_written_to_one_file(tmpdir):
@@ -107,6 +118,36 @@ def test_multiple_statements_written_to_multiple_files(tmpdir):
     expected_content = "\n".join((
             expected_header_row,
             expected_csv_rows[2],
+            ""
+            ))
+    assert expected_file.read_text("latin1") == expected_content
+
+def test_split_statements_per_month(tmpdir):
+    writer = GnuCashCsvWriter(str(tmpdir), split_months=True)
+    try:
+        writer.write_statement(test_statements[0])
+        writer.write_statement(test_statements[1])
+        writer.write_statement(test_statements[3])
+    finally:
+        writer.close()
+
+    expected_file = tmpdir.join(test_accounts[0] + "-2018-02.csv")
+    assert expected_file.check()
+
+    expected_content = "\n".join((
+            expected_header_row,
+            expected_csv_rows[0],
+            expected_csv_rows[1],
+            ""
+            ))
+    assert expected_file.read_text("latin1") == expected_content
+
+    expected_file = tmpdir.join(test_accounts[0] + "-2018-04.csv")
+    assert expected_file.check()
+
+    expected_content = "\n".join((
+            expected_header_row,
+            expected_csv_rows[3],
             ""
             ))
     assert expected_file.read_text("latin1") == expected_content
