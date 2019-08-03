@@ -4,3 +4,4 @@ Simple python script to convert bank statements into a format readable by GNUCas
 
 Supported bank statements:
 * Rabobank CSV format
+* ABN Amro TXT format
