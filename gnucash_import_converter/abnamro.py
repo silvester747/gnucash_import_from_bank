@@ -73,7 +73,6 @@ class _AbnAmroTxtIterator(object):
         else:
             parts = re.split(r'\s\s+', extra_field_str)
             assert parts
-            print(parts)
 
             extra_data = {}
             extra_data['Type'] = transaction_type = parts[0]
